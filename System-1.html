@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskQuest ⚔️</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #1b1f3b, #3e437a);
+      color: #fff;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    .hidden { display: none; }
+    .fade-in { animation: fadeIn 1.5s ease forwards; }
+    @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
+
+    h1, h2 { margin: 1rem 0; }
+
+    /* Welcome Screen */
+    #welcomeScreen {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at center, #222657, #0f112d);
+    }
+
+    #welcomeScreen button {
+      background: #00c6ff;
+      border: none;
+      color: white;
+      padding: 0.7rem 1.5rem;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-top: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    #welcomeScreen button:hover {
+      background: #0072ff;
+      transform: scale(1.05);
+    }
+
+    /* Class Selection */
+    #classSelect {
+      padding: 2rem;
+    }
+
+    .class-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .class-card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .class-card:hover {
+      background: rgba(0,198,255,0.3);
+      transform: translateY(-5px);
+    }
+
+    /* Main Game */
+    #mainApp {
+      padding: 2rem;
+    }
+
+    .stats {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      display: inline-block;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .xp-bar {
+      background: #2b2b5b;
+      border-radius: 8px;
+      overflow: hidden;
+      height: 15px;
+      margin-top: 8px;
+    }
+
+    .xp-fill {
+      background: linear-gradient(90deg, #00c6ff, #0072ff);
+      width: 0%;
+      height: 100%;
+      transition: width 0.5s ease;
+    }
+
+    input[type="text"] {
+      width: 60%;
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      margin-right: 0.5rem;
+    }
+
+    button {
+      background: #00c6ff;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      padding: 0.6rem 1.2rem;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    button:hover { background: #0072ff; }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    li {
+      background: rgba(255,255,255,0.1);
+      margin: 8px 0;
+      padding: 0.6rem;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .completed { text-decoration: line-through; opacity: 0.6; }
+
+    .delete-btn { background: crimson; padding: 4px 10px; border-radius: 6px; }
+
+    /* Level Up Popup */
+    #levelUpPopup {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 100;
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    #levelUpPopup h1 {
+      font-size: 3rem;
+      color: #00c6ff;
+      margin-bottom: 1rem;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Welcome Screen -->
+  <div id="welcomeScreen" class="fade-in">
+    <h1>⚔️ Welcome, Adventurer!</h1>
+    <p>Welcome to <b>TaskQuest</b> — where real life becomes your quest for greatness.</p>
+    <button onclick="goToClassSelect()">Begin Your Journey</button>
+  </div>
+
+  <!-- Class Selection -->
+  <div id="classSelect" class="hidden fade-in">
+    <h2>Select Your Class</h2>
+    <div class="class-grid">
+      <div class="class-card" onclick="selectClass('Paladin')">🛡️ Paladin</div>
+      <div class="class-card" onclick="selectClass('Barbarian')">⚒️ Barbarian</div>
+      <div class="class-card" onclick="selectClass('Monk')">🕉️ Monk</div>
+      <div class="class-card" onclick="selectClass('Vagabond')">🗡️ Vagabond</div>
+      <div class="class-card" onclick="selectClass('Knight')">⚔️ Knight</div>
+      <div class="class-card" onclick="selectClass('Assassin')">🗡️ Assassin</div>
+      <div class="class-card" onclick="selectClass('Mage')">🔮 Mage</div>
+      <div class="class-card" onclick="selectClass('Healer')">🌿 Healer</div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="mainApp" class="hidden fade-in">
+    <h1>⚔️ TaskQuest</h1>
+    <h3 id="playerClass"></h3>
+    <div class="stats">
+      <h3>Level: <span id="level">1</span></h3>
+      <p>XP: <span id="xp">0</span> / 100</p>
+      <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+    </div>
+
+    <div class="task-input">
+      <input type="text" id="taskInput" placeholder="Enter your quest...">
+      <button onclick="addTask()">Add</button>
+    </div>
+
+    <ul id="taskList"></ul>
+  </div>
+
+  <!-- Level Up Popup -->
+  <div id="levelUpPopup">
+    <h1>🎉 LEVEL UP!</h1>
+    <p id="newLevelText"></p>
+  </div>
+
+  <script>
+    let xp = parseInt(localStorage.getItem('xp')) || 0;
+    let level = Math.floor(xp / 100) + 1;
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    let playerClass = localStorage.getItem('playerClass') || null;
+
+    const xpDisplay = document.getElementById('xp');
+    const levelDisplay = document.getElementById('level');
+    const xpFill = document.getElementById('xpFill');
+    const taskList = document.getElementById('taskList');
+    const popup = document.getElementById('levelUpPopup');
+    const newLevelText = document.getElementById('newLevelText');
+
+    // Navigation logic
+    if (playerClass) {
+      document.getElementById('welcomeScreen').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      document.getElementById('playerClass').innerText = `Class: ${playerClass}`;
+    }
+
+    function goToClassSelect() {
+      document.getElementById('welcomeScreen').classList.add('hidden');
+      document.getElementById('classSelect').classList.remove('hidden');
+    }
+
+    function selectClass(cls) {
+      playerClass = cls;
+      localStorage.setItem('playerClass', cls);
+      document.getElementById('classSelect').classList.add('hidden');
+      document.getElementById('mainApp').classList.remove('hidden');
+      document.getElementById('playerClass').innerText = `Class: ${cls}`;
+    }
+
+    function updateStats() {
+      level = Math.floor(xp / 100) + 1;
+      xpDisplay.textContent = xp % 100;
+      levelDisplay.textContent = level;
+      xpFill.style.width = (xp % 100) + "%";
+      localStorage.setItem('xp', xp);
+    }
+
+    function addTask() {
+      const input = document.getElementById('taskInput');
+      const text = input.value.trim();
+      if (text === '') return;
+      tasks.push({ text, completed: false });
+      input.value = '';
+      saveTasks();
+      renderTasks();
+    }
+
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function renderTasks() {
+      taskList.innerHTML = '';
+      tasks.forEach((task, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span class="${task.completed ? 'completed' : ''}">${task.text}</span>
+          <div>
+            <button onclick="toggleComplete(${i})">✔</button>
+            <button class="delete-btn" onclick="deleteTask(${i})">✖</button>
+          </div>`;
+        taskList.appendChild(li);
+      });
+    }
+
+    function toggleComplete(i) {
+      if (!tasks[i].completed) {
+        xp += 10;
+        if (xp % 100 === 0) showLevelUp();
+      }
+      tasks[i].completed = !tasks[i].completed;
+      saveTasks();
+      updateStats();
+      renderTasks();
+    }
+
+    function deleteTask(i) {
+      tasks.splice(i, 1);
+      saveTasks();
+      renderTasks();
+    }
+
+    function showLevelUp() {
+      newLevelText.innerText = `You reached Level ${level + 1}, ${playerClass}!`;
+      popup.style.display = 'flex';
+      setTimeout(() => { popup.style.display = 'none'; }, 3000);
+    }
+
+    updateStats();
+    renderTasks();
+  </script>
+</body>
+</html>
